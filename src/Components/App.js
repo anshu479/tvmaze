@@ -7,6 +7,8 @@ import "./App.css";
 function App() {
   let [dataActor, setDataActor] = useState([]);
   let [dataShows, setDataShows] = useState([]);
+  let [actorShowData, setActorShowData] = useState([]);
+  let [noData, setNoData] = useState("");
 
   let [radio, setRadio] = useState("");
   let [input, setInput] = useState("");
@@ -25,11 +27,32 @@ function App() {
     }
   }, [input]);
 
+  useEffect(() => {
+    if (dataActor.length !== 0) {
+      console.log(dataActor[0]?.person?.id, dataActor[0]?.person?.name);
+      if (input === "") {
+        setActorShowData([]);
+      } else
+        axios
+          .get(
+            `https://api.tvmaze.com/people/${dataActor[0]?.person?.id}/castcredits?embed=show`
+          )
+          .then((response) =>
+            setActorShowData(
+              (prevState, prevProp) => (prevState = response.data)
+            )
+          );
+      // console.log("actor show data", actorShowData);
+    }
+  }, [dataActor, input]);
+
   function updateRadio(event) {
     setRadio((radio = event.target.value));
     setDataActor((prevState, prevProp) => (prevState = []));
     setDataShows((prevState, prevProp) => (prevState = []));
     setInput((prevState, prevProp) => (prevState = ""));
+    setActorShowData((prevState, prevProp) => (prevState = ""));
+    setNoData((prevState, prevProp) => (prevState = ""));
     console.log(radio);
   }
 
@@ -65,18 +88,29 @@ function App() {
             <input
               className="form-control w-50 mx-auto"
               value={input}
+              onBlur={() => {
+                setNoData("NO SHOWS AVAILABLE");
+              }}
               onChange={(e) => {
                 setInput(e.target.value);
+                setNoData("NO SHOWS AVAILABLE");
               }}
               type="text"
             ></input>
           </div>
         </form>
       </div>
+      {console.log("actor show data", actorShowData, "data show", dataShows)}
       {radio === "actor" ? (
-        <Actor data={dataActor}></Actor>
-      ) : (
+        actorShowData.length !== 0 ? (
+          <Actor data={actorShowData}></Actor>
+        ) : (
+          <h3 style={{ color: "red" }}>{noData}</h3>
+        )
+      ) : dataShows.length !== 0 ? (
         <Shows data={dataShows}></Shows>
+      ) : (
+        <h3 style={{ color: "red" }}>{noData}</h3>
       )}
     </div>
   );
