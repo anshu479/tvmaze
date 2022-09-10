@@ -16,14 +16,28 @@ function App() {
   useEffect(() => {
     if (radio === "actor") {
       console.log("actor api called");
-      axios
-        .get(`https://api.tvmaze.com/search/people?q=${input}`)
-        .then((response) => setDataActor(response.data));
+      let id = setTimeout(() => {
+        axios
+          .get(`https://api.tvmaze.com/search/people?q=${input}`)
+          .then((response) => setDataActor(response.data));
+      }, 500);
+
+      return () => {
+        clearTimeout(id);
+      };
     } else {
-      console.log("shows api called");
-      axios
-        .get(`https://api.tvmaze.com/search/shows?q=${input}`)
-        .then((response) => setDataShows(response.data));
+      if (input !== "") {
+        console.log("shows api called");
+        let id = setTimeout(() => {
+          axios
+            .get(`https://api.tvmaze.com/search/shows?q=${input}`)
+            .then((response) => setDataShows(response.data));
+        }, 500);
+
+        return () => {
+          clearTimeout(id);
+        };
+      }
     }
   }, [input]);
 
@@ -45,6 +59,18 @@ function App() {
       // console.log("actor show data", actorShowData);
     }
   }, [dataActor, input]);
+
+  // let timerName;
+  // const onSearch = (e) => {
+  //   console.log("onSearcch", e.target.value);
+  //   clearTimeout(timerName);
+
+  //   timerName = setTimeout(() => {
+  //     var string = e.target.value;
+
+  //     setInput(string);
+  //   }, 300);
+  // };
 
   function updateRadio(event) {
     setRadio((radio = event.target.value));
@@ -93,6 +119,7 @@ function App() {
               }}
               onChange={(e) => {
                 setInput(e.target.value);
+                // setInput(e.target.value);
                 setNoData("NO SHOWS AVAILABLE");
               }}
               type="text"
