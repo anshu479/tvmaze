@@ -106,7 +106,6 @@ function App() {
               name="tv"
               type="radio"
               value="shows"
-              checked="checked"
             ></input>
             <label style={{ fontSize: "20px" }}>Shows</label>
           </div>
